@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block title %} 
+    login
+{% endblock %}
+
+{% block main %}
+
+    <br>
+
+    <form action="/register" method="post">
+        <input type="text" name="username" placeholder="Username">
+        <input type = "password" name="password" placeholder="password">
+        <input type ="password" name = "confirmation" placeholder="confirm password">
+        <button type="submit">Register</button>
+    </form>
+{% endblock %}

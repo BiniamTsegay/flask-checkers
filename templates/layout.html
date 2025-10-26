@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">  
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous"> 
+        <title>{% block title %} {% endblock %}</title>
+        <style>
+            .custom-header {
+                padding:20px;
+                background-color:bisque;
+                min-height: 50px;
+
+            } 
+            .board
+            {
+                width:50px;
+                height: 50px;
+                text-align: center;
+                font-size: 36px; 
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                display: inline-block; 
+                transform: scaleX(1.2);
+                background-color: beige;
+
+
+            }
+            
+
+        </style>
+    </head>
+    <body>
+        <div class="custom-header">
+            {% if session["player_id"] %}
+                <a href="">Home</a>
+                <a href style="margin-left: 20px;">LeaderBoard</a>
+                <a href="" style="margin-left: 20px;">Friends</a>
+                <a href="" style="margin-left: 20px;">New Friends</a>
+                <a href="" style="margin-left: 820px;">Sign out</a>
+            {% else %}
+                <a href ="/register" style="margin-left: 1100px;">Register</a>
+                <a href ="/login" style="margin-left: 20px;">Log in</a>
+            {% endif %}
+            
+
+        </div>
+        {% block main %} 
+        {% endblock %}
+    
+
+    </body>
+</html>
+
