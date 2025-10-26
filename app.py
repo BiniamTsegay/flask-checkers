@@ -1,14 +1,27 @@
 from flask import Flask, render_template, request, session, redirect, request
 from flask_session import Session
 import random
-from temp import login_required
+from functools import wraps
 from werkzeug.security import check_password_hash, generate_password_hash
 from password_validator import PasswordValidator
 import sqlite3
+import os
+from dotenv import load_dotenv
+import secrets
+
+
 
 # Setup flask
 app =Flask(__name__)
-# Setup session
+
+#red variables in .env file
+load_dotenv()
+
+# assign secret key
+secret = os.getenv("secret_key")
+app.secret_key = secret
+
+# Setup session config
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 app.config["TEMPLATES_AUTO_RELOAD"] = True
@@ -33,11 +46,23 @@ schema\
 .has().digits()\
 .has().no().spaces()\
 
+# define login_required to require login for some views or routes
 
+def login_required(f):
+    """Adopted from Login required Decorator at this url
+    https://flask.palletsprojects.com/en/latest/patterns/viewdecorators/"""
+
+    @wraps(f)
+    def decorated_inner_function(*args, **kwargs):
+        # if player is not logged in redirect to login page
+        if session.get("player_id") is None:
+            return redirect("/login")
+        return f(*args,*kwargs)
+    return decorated_inner_function
 
 
 @app.route("/")
-#@login_required
+@login_required
 def index():
     return render_template("index.html")
 
@@ -46,12 +71,35 @@ def index():
 def login():
     if request.method=="POST":
         # clear any previous session
+        session.clear()
         # assign the forms field to variables
-    
+        username = request.form.get("username")
+        password = request.form.get("password")
         # validate input
+        if not username:
+            return render_template("apology.html", reason="Please enter your username")
+        elif not password:
+            return render_template("apology.html", reason ="Please enter your password")
         # check if the user is in database and query hashed password and player id
+        datab = sqlite3.connect("biniam.db")
+        db=datab.cursor()
+        # This return tuple
+        rows = db.execute("SELECT * FROM players WHERE user_name = ?", (username,))
+        rows = rows.fetchone()
+        
+        # if user is not in database redirect to register page
+        if rows is None:
+            return redirect("/register")
+
         # check if the password and hashed password match
+        elif not check_password_hash(rows[2],password):
+            return render_template("apology.html", reason="Password and username did not match")
         # add user's session and redirect to homepage
+        session["player_id"] =rows[0]
+        datab.commit()
+        datab.close()
+        return redirect("/")
+
     return render_template("login.html")
   
 @app.route("/register", methods=["POST","GET"])
@@ -98,6 +146,13 @@ def register():
 
         
     return render_template("register.html")
+
+@app.route("/logout")
+@login_required
+def logout():
+    """Log user out"""
+    session.clear()
+    return redirect("/login")
 
 # randomly generating room number
 room_number =random.randint(1000, 9999)
