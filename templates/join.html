@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% block title %} Join {% endblock %}
+
+{% block main %}
+    <div>
+        <form action="/room" method="post" style="margin-top: 20px;margin-left: 20px;">
+            <input placeholder="room_code" name="join_room" type="text">
+            <button type="submit" class="btn btn-info"> Join Room</button>
+        </form>
+    </div>
+{% endblock %}
