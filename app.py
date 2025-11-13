@@ -349,16 +349,8 @@ def handle_move(data):
         print("349")
         return
     # check if the move is forward
-    player_1_possible_move=[origin_id + 7, origin_id + 9, origin_id + 14, origin_id + 18]
-    player_2_possible_move =[origin_id - 7, origin_id - 9, origin_id - 14, origin_id - 18]
-    
-    if moved_by==player_1:
-        if target_id not in player_1_possible_move and origin_piece =="♟":
-            return
-        
-    elif moved_by==player_2:
-        if target_id not in player_2_possible_move and origin_piece =="♟":
-            return
+    if check_move_forward(origin_id, moved_by, player_1, target_id, player_2, origin_piece) == False:
+        return
         
     # if the players joined are not  2 players can not move their pieces
     if members_joined() != 2:
@@ -510,6 +502,19 @@ def handle_invalid_jump(data, moved_by,target_id, origin_id, origin_piece, playe
 def members_joined():
     """This tracks the number of users in a room"""
     return rooms_in_use.count(session["room"])
+
+def check_move_forward(origin_id, moved_by, player_1, target_id, player_2, origin_piece):
+
+    player_1_possible_move=[origin_id + 7, origin_id + 9, origin_id + 14, origin_id + 18]
+    player_2_possible_move =[origin_id - 7, origin_id - 9, origin_id - 14, origin_id - 18]
+    
+    if moved_by==player_1:
+        if target_id not in player_1_possible_move and origin_piece =="♟":
+            return False
+        
+    elif moved_by==player_2:
+        if target_id not in player_2_possible_move and origin_piece =="♟":
+            return False
 
 def manage_captures(room,data,moved_by, player_1, target_id, origin_id):
 
