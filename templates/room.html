@@ -1,9 +1,268 @@
-{% extends "factored.html" %}
-{% block room_n %}
-    <h3>{{code}}</h3>
+{% extends "layout.html" %}
+
+{% block title %} home {% endblock %}
+
+{% block main %}
+    
+    <div id="winner" style="text-align: center;"></div>
+    <br>
+    <div id="empty"></div>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <h3 style="text-align: center; color: rgb(14, 172, 85);">{{messages[0]}}</h3>
+        {% endif %}
+    {% endwith %}
+    
+    <table style="margin: 0 auto; transform: rotate({{rotate}});">
+        <tbody>
+            {% for i in range(8) %}
+                <tr>
+                    {% for j in range(8) %}
+                        {% set cell_id = i * 8 + j + 1 %}
+                        {% if (j + i) % 2 == 0 %}
+                            
+                            <td class="board" style="background-color: beige; transform: rotate({{rotate}});" id="{{cell_id}}" draggable="true"></td>
+                        {% else %}
+                            <td class="board"  style="background-color: tan; transform: rotate({{rotate}});"draggable="true" id="{{cell_id}}"></td>
+                        {% endif %}
+
+                    {% endfor %}
+
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+  
+    <div style="text-align: center;">
+        <button type="submit" class="btn btn-danger" id="quit" name="quit">Quit Game</button>
+
+    </div>
+    
+
+ <script>
+    // populate the board with men
+    var total_cells = 64;
+    for(let i = 0; i < total_cells; i ++)
+    {
+        // populate the first 24 cells with black men
+        if(i < 24)
+        {
+            //populate only the tan colored cells
+            if (document.getElementById(i +1).style.backgroundColor==="tan") {
+
+                document.getElementById(i + 1).innerHTML= "♟"
+                document.getElementById(i + 1).style.color="black";
+            }
+            
+        }
+        // populate the last 24 cells with green men and only the tan 
+        else if(i >= 40 && document.getElementById(i + 1).style.backgroundColor!="beige")
+        {
+            document.getElementById(i + 1).innerHTML="♟";
+            document.getElementById(i + 1).style.color="green";
+        }
+    }
+    // intiate io
+    const x = 8;
+    var socket = io();
+    socket.on("connect", function(){
+        
+        var origin;
+        var orgindata;
+        var colororigin;
+        var target;
+        var targetdata;
+        
+        var player;
+
+        // add drag and dragstart for all cells
+        pieces = document.querySelectorAll("td");
+        
+        pieces.forEach(function(piece){
+            if (piece.style.backgroundColor==="tan"){
+
+                piece.addEventListener("dragstart",function(event){
+                    origin = event.target.id;
+                    origin = Number(origin);
+                    orgindata =event.target.innerHTML;
+                    player = socket.id;
+                    colororigin = event.target.style.color;
+
+                })
+
+                piece.addEventListener("dragover", function(event){
+                    event.preventDefault();
+                    
+                })
+                piece.addEventListener("drop", function(event){
+                    target = event.target.id;
+                    target = Number(target);
+                    targetdata = event.target.innerHTML;
+                    
+                    // check if the move was jump or one step
+                     
+                    movement_data = droped(target, origin, x, orgindata, player,colororigin, targetdata);
+                    
+                    event.preventDefault();
+                    socket.emit("move", movement_data);
+                    
+                    
+                })
+
+                piece.addEventListener("touchstart",function(event){
+                    origin = event.target.id;
+                    origin = Number(origin);
+                    orgindata =event.target.innerHTML;
+                    player = socket.id;
+                    colororigin = event.target.style.color;
+
+                })
+
+                piece.addEventListener("touchmove", function(event){
+                    event.preventDefault();
+                    console.log("moving");
+                    
+                })
+                piece.addEventListener("touchend", function(event){
+                    target = event.target.id;
+                    target = Number(target);
+                    targetdata = event.target.innerHTML;
+                    
+                    // check if the move was jump or one step
+                    
+                    movement_data = droped(target, origin, x, orgindata, player,colororigin, targetdata);
+                    
+                    event.preventDefault();
+                    socket.emit("move", movement_data);
+                    
+                    
+                })
+
+
+            }
+        
+            
+        
+
+        })
+    })
+
+    socket.on("handled_move", function(data){
+        // the move was valid move
+        console.log(data);
+        if (data["valid_move"]=== true){
+            // if piece is to be crowned
+            if (data["crown"]=== true){
+                document.getElementById(data["target_id"]).innerHTML= "♚";
+                const crown_sound = new Audio("/static/crown_sound.mp3");
+                crown_sound.play();
+
+            }
+            // move the piece to the target cell
+            else
+            {
+                document.getElementById(data["target_id"]).innerHTML = data["origin_piece"];
+
+                const movesound = new Audio("/static/move_sound.mp3");
+                if (data["captured"] == null){
+                    movesound.play();
+                }
+            
+            }
+            
+            // color the piece
+            document.getElementById(data["target_id"]).style.color = data["origin_color"];
+            //empty the origin
+            document.getElementById(data["origin_id"]).innerHTML = "";
+            document.getElementById(data["origin_id"]).style.color="";
+            // check if there was capturing
+            if(data["captured"]!=null){
+                document.getElementById(data["captured"]).innerHTML="";
+                document.getElementById(data["captured"]).style.color="";
+                const capture_sound= new Audio("/static/capture_sound.mp3");
+                capture_sound.play();
+            }
+        }
+
+    })
+    let quit= document.getElementById("quit");
+    quit.addEventListener("click", function(){
+
+        socket.emit("quit", socket.id );
+        window.location.href ="/";
+    })
+    
+    socket.on("gameover", function(data){
+        var winner_popup= document.getElementById("winner");
+        if (data["winner"] ==="player_1"){
+            winner_popup.innerHTML = "Black Won!";
+            socket.emit("after_game", "player_1");
+        }
+        else
+        {
+            winner_popup.innerHTML = "Green Won!";
+            socket.emit("after_game", "player_2");
+        }
+        const game_over_sound = new Audio("/static/game_over_sound.mp3");
+        game_over_sound.play();
+    })
+
+    function droped(target, origin, x, orgindata, player,colororigin, targetdata){
+
+        if(target === (origin + x +1) || target === (origin + x -1) || target === (origin -x + 1) || target ===(origin -x -1))
+        {
+            var capturing ={"try_capture": false};
+        }
+        else
+        {
+            var capturing = {"try_capture":true};
+            var low_bound = [2, 4, 6, 8, 9];
+            var high_bound =[56, 57,59,61,63];
+            if (low_bound.includes(origin)){
+                capturing["o+x+1"] = [origin + x +1, document.getElementById(origin + x + 1).style.color, document.getElementById(origin + x + 1).innerHTML];
+                capturing["o+x-1"] = [origin + x -1, document.getElementById(origin + x - 1).style.color, document.getElementById(origin + x - 1).innerHTML];
+                capturing["o-x+1"] = [0, "",""];
+                capturing["o-x-1"] =[0,"",""];
+
+            }
+            else if(high_bound.includes(origin)){
+                capturing["o-x+1"] = [origin - x +1, document.getElementById(origin - x + 1).style.color, document.getElementById(origin - x + 1).innerHTML];
+                capturing["o-x-1"] = [origin - x -1, document.getElementById(origin - x - 1).style.color, document.getElementById(origin - x - 1).innerHTML];
+                capturing["o+x+1"] = [0, "",""];
+                capturing["o+x-1"] =[0,"",""];
+
+            }
+            else{
+                capturing["o+x+1"] = [origin + x +1, document.getElementById(origin + x + 1).style.color, document.getElementById(origin + x + 1).innerHTML];
+                capturing["o+x-1"] = [origin + x -1, document.getElementById(origin + x - 1).style.color, document.getElementById(origin + x - 1).innerHTML];
+                capturing["o-x+1"] = [origin - x +1, document.getElementById(origin - x + 1).style.color, document.getElementById(origin - x + 1).innerHTML];
+                capturing["o-x-1"] = [origin - x -1, document.getElementById(origin - x - 1).style.color, document.getElementById(origin - x - 1).innerHTML];
+
+            }
+
+                        
+                        
+                        
+        }
+
+        movement_data = {"origin_id":origin, "origin_piece":orgindata, "moved_by":player, "origin_piece_color": colororigin, "target_id":target, "target_piece":targetdata, movement_path: capturing};
+        return movement_data;
+                    
+
+
+    }
+    
+    
+
+    
+    
+    
+
+  </script>
+
+
+
+
 {% endblock %}
-{% block button %}
-    <button type="submit" class="btn btn-danger" id="quit" name="quit">Quit Game</button>
-{% endblock %}
-{% block script %}
-{% endblock %}
+

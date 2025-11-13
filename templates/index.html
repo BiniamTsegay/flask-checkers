@@ -1,12 +1,13 @@
-{% extends "factored.html" %}
-{% block button %}
-    <form action="/room" method="post">
-        <button type="submit" class="btn btn-info" id="start" name="start">Start Game</button>
-        <button type="button" style="margin-left: 20px;" class="btn btn-success" id="join" name="join">Join Game</button>   
+{% extends "layout.html" %}
+{% block title %} home {% endblock %}
+{% block main %}
+    <form action="/room" method="post" style="display: grid; place-items: center; height: 30vh;">
+        <div style="display: flex; gap: 20px;">
+            <button type="submit" class="btn btn-info" id="start" name="start">Start Game</button>
+            <button type="button" style="margin-left: 20px;" class="btn btn-success" id="join" name="join">Join Game</button> 
+        </div>  
     </form>
-{% endblock %}
-    
-{% block script %}
+
     <script>
         // when join game button is clicked it redirects to join route
         const join_btn = document.getElementById("join");

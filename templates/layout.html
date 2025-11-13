@@ -8,23 +8,34 @@
         <title>{% block title %} {% endblock %}</title>
         <style>
             .custom-header {
-                padding:20px;
+                padding:1.5vh 1vw;
                 background-color:bisque;
-                min-height: 50px;
+                min-height: 8vh;
+                display: flex;
+                align-items: center;
 
             } 
             .board
             {
-                width:50px;
-                height: 50px;
+                width:12vmin;
+                height: 12vmin;
                 text-align: center;
-                font-size: 36px; 
+                font-size: 2.2rem; 
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                 display: inline-block; 
                 transform: scaleX(1.2);
                 background-color: beige;
 
 
+            }
+            @media (min-width:1024px) {
+                .board{
+                    width: 8vmin;
+                    height: 8vmin;
+                    font-size: 2rem;
+                    transform: scaleX(1.2);
+                }
+                
             }
             
 
@@ -34,13 +45,11 @@
         <div class="custom-header">
             {% if session["player_id"] %}
                 <a href="/">Home</a>
-                <a href style="margin-left: 20px;">LeaderBoard</a>
-                <a href="" style="margin-left: 20px;">Friends</a>
-                <a href="" style="margin-left: 20px;">New Friends</a>
-                <a href="/logout" style="margin-left: 820px;">Log Out</a>
+                <a href ="/leaderboard" style="margin-left: 3vw;">LeaderBoard</a>
+                <a href="/logout" style="margin-left: auto;">Log Out</a>
             {% else %}
-                <a href ="/register" style="margin-left: 1100px;">Register</a>
-                <a href ="/login" style="margin-left: 20px;">Log in</a>
+                <a href ="/register">Register</a>
+                <a href ="/login" style="margin-left: 3vw;">Log in</a>
             {% endif %}
             
 
