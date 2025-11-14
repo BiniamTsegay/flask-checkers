@@ -1,4 +1,6 @@
 # imports
+import eventlet
+eventlet.monkey_patch()
 from flask import Flask, render_template, request, session, redirect, request, flash
 from flask_session import Session
 import random
@@ -12,6 +14,7 @@ import secrets
 from flask_socketio import SocketIO, join_room, leave_room, emit,send
 from datetime import datetime
 import copy
+
 from game_logic import add_score, handle_invalid_jump, members_joined,check_move_forward,manage_captures,manage_turns,detect_winner, finalize_player_move, force_capture
 from globals import board, track_captured_pieces, manage_players_in_room, rooms_in_use
 
@@ -26,7 +29,7 @@ secret = os.getenv("secret_key")
 app.secret_key = secret
 
 # set flask-socketio
-socketio = SocketIO(app)
+socketio = SocketIO(app, async_mode="eventlet")
 
 # Setup session config
 app.config["SESSION_PERMANENT"] = False
@@ -385,5 +388,5 @@ def handle_aftergame(data):
    
 
 if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=8080, debug=True)
+    socketio.run(app, host="0.0.0.0", port=8080, debug=False)
 
