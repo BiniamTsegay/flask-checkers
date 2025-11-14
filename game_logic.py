@@ -1,6 +1,7 @@
 from datetime import datetime
 from flask import session
 import sqlite3
+import os
 from globals import track_captured_pieces, rooms_in_use, board, manage_players_in_room
 
 def add_score(player):
@@ -16,10 +17,10 @@ def add_score(player):
             player_id = session.get("player_id")
         else:
             return
-        
-
     score_gain = 10
-    datab = sqlite3.connect("biniam.db")
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    db_path = os.path.join(BASE_DIR, "biniam.db")
+    datab = sqlite3.connect(db_path)
     db = datab.cursor()
     db.execute("SELECT score FROM players WHERE id= ?", (player_id, ))
     score = db.fetchone()[0]

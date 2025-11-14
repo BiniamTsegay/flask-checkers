@@ -94,8 +94,10 @@ def login():
         elif not password:
             return render_template("apology.html", reason ="Please enter your password")
         # check if the user is in database and query hashed password and player id
-        datab = sqlite3.connect("biniam.db")
-        db=datab.cursor()
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        db_path = os.path.join(BASE_DIR, "biniam.db")
+        datab = sqlite3.connect(db_path)
+        db = datab.cursor()
         # This return tuple
         rows = db.execute("SELECT * FROM players WHERE user_name = ?", (username,))
         rows = rows.fetchone()
@@ -125,7 +127,9 @@ def register():
         # hashing password
         generate_hashed_password = generate_password_hash(password)
         # connect to database
-        datab = sqlite3.connect("biniam.db")
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        db_path = os.path.join(BASE_DIR, "biniam.db")
+        datab = sqlite3.connect(db_path)
         db = datab.cursor()
         # check if username is already in database
         rows = db.execute("SELECT user_name from players WHERE user_name =?", (username,))
@@ -217,7 +221,9 @@ def room():
 @login_required
 def leaderboard():
     """Show the players with the highest 100 scores"""
-    datab = sqlite3.connect("biniam.db")
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    db_path = os.path.join(BASE_DIR, "biniam.db")
+    datab = sqlite3.connect(db_path)
     db = datab.cursor()
     rows =db.execute("SELECT user_name, score FROM players ORDER BY score DESC LIMIT 100").fetchall()
     datab.commit()
