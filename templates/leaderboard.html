@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+
+{% block title %} LeaderBoard {% endblock %}
+
+{% block main %}
+<br>
+
+    <table class="table table-success table-striped">
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>Name</th>
+                <th>Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in rows %}
+                <tr>
+
+                    <td>{{loop.index}}</td>
+                    <td>{{row[0]}}</td>
+                    <td>{{row[1]}}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+            
+    </table>
+
+{% endblock %}

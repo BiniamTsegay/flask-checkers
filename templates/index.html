@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block title %} home {% endblock %}
+{% block main %}
+    <form action="/room" method="post" style="display: grid; place-items: center; height: 30vh;">
+        <div style="display: flex; gap: 20px;">
+            <button type="submit" class="btn btn-info" id="start" name="start">Start Game</button>
+            <button type="button" style="margin-left: 20px;" class="btn btn-success" id="join" name="join">Join Game</button> 
+        </div>  
+    </form>
+
+    <script>
+        // when join game button is clicked it redirects to join route
+        const join_btn = document.getElementById("join");
+        join_btn.onclick = function()
+        {
+            window.location.href = "/room";
+        }
+    </script>
+
+
+{% endblock %}
