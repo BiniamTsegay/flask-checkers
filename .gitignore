@@ -2,5 +2,4 @@
 __pycache__/
 *.pyc
 *.db
-reminder.txt
 /flask_session

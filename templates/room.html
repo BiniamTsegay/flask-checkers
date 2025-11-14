@@ -156,6 +156,7 @@
             if (data["crown"]=== true){
                 document.getElementById(data["target_id"]).innerHTML= "♚";
                 const crown_sound = new Audio("/static/crown_sound.mp3");
+                crown_sound.currentTime =0;
                 crown_sound.play();
 
             }
@@ -166,6 +167,7 @@
 
                 const movesound = new Audio("/static/move_sound.mp3");
                 if (data["captured"] == null){
+                    movesound.currentTime=0;
                     movesound.play();
                 }
             
@@ -181,6 +183,7 @@
                 document.getElementById(data["captured"]).innerHTML="";
                 document.getElementById(data["captured"]).style.color="";
                 const capture_sound= new Audio("/static/capture_sound.mp3");
+                capture_sound.currentTime=0;
                 capture_sound.play();
             }
         }
@@ -205,6 +208,7 @@
             socket.emit("after_game", "player_2");
         }
         const game_over_sound = new Audio("/static/game_over_sound.mp3");
+        game_over_sound.currentTime=0;
         game_over_sound.play();
     })
 
