@@ -369,9 +369,7 @@ def handle_move(data):
     if data["movement_path"]["try_capture"] == False:
         if force_capture(room, player_1, player_2, moved_by):
             return
-
-            
-
+        
     # check if the piece will be crowned
     crowning_locations = [2,4,6,8,57,59,61,63]
     if target_id in crowning_locations:
@@ -380,27 +378,9 @@ def handle_move(data):
     
     validated_result["valid_move"]=True
     emit("handled_move", validated_result, broadcast= True)
-    # to track the players turn and if the player has any leftover captures
-    if data["movement_path"]["try_capture"] == True:
-        manage_players_in_room[room]["track_capture"]=target_id
-        # if the above code excuted it means there was valid capture
-        # the board needs to be update (the one in this file)
-        captured_id = origin_id + ((target_id - origin_id)//2)
-        manage_players_in_room[room]["board"][captured_id][0]=""
-        manage_players_in_room[room]["board"][captured_id][1]=""
-
-    else:
-        # since there was no capture no need to track leftover pieces
-        manage_players_in_room[room]["track_capture"] = 0
-    # saving prevous player id once the player make the move so that they can not make anauthorized move
-    manage_players_in_room[room]["prevous_turn"] = request.sid
-    # to store the time a valid move was done. It will be used when a player capture a piece and may have a leftover
-    # so the next player waits few seconds before making his move
-    manage_players_in_room[room]["time"] = datetime.now()
-    manage_players_in_room[room]["board"][origin_id][0] =""
-    manage_players_in_room[room]["board"][origin_id][1] =""
-    manage_players_in_room[room]["board"][target_id][0] = origin_piece
-    manage_players_in_room[room]["board"][target_id][1] = origin_piece_color
+    # finalizing move
+    current_player=request.sid
+    finalize_player_move(room,data,origin_id, target_id, origin_piece, origin_piece_color, current_player)
     
     # check if the game is over
     if detect_winner() == "player_1":
@@ -559,6 +539,30 @@ def detect_winner():
     elif len(track_captured_pieces[room]["player_2"]) == 12:
         return "player_2"
 
+def finalize_player_move(room,data,origin_id, target_id, origin_piece, origin_piece_color, current_player):
+    global manage_players_in_room
+
+    if data["movement_path"]["try_capture"] == True:
+        manage_players_in_room[room]["track_capture"]=target_id
+        # if the above code excuted it means there was valid capture
+        # the board needs to be update
+        captured_id = origin_id + ((target_id - origin_id)//2)
+        manage_players_in_room[room]["board"][captured_id][0]=""
+        manage_players_in_room[room]["board"][captured_id][1]=""
+
+    else:
+        # since there was no capture no need to track leftover pieces
+        manage_players_in_room[room]["track_capture"] = 0
+    # saving prevous player id once the player make the move so that they can not make anauthorized move
+    manage_players_in_room[room]["prevous_turn"] = current_player
+    # to store the time a valid move was done. It will be used when a player capture a piece and may have a leftover
+    # so the next player waits few seconds before making his move
+    manage_players_in_room[room]["time"] = datetime.now()
+    manage_players_in_room[room]["board"][origin_id][0] =""
+    manage_players_in_room[room]["board"][origin_id][1] =""
+    manage_players_in_room[room]["board"][target_id][0] = origin_piece
+    manage_players_in_room[room]["board"][target_id][1] = origin_piece_color
+    
 
 def force_capture(room, player_1, player_2, moved_by):
     """To force capture if there is a capture""" 
