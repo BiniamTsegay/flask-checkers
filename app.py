@@ -325,7 +325,6 @@ def handle_move(data):
     
     # manage turns
     if manage_turns(room, moved_by, origin_id, data) == False:
-        print("349")
         return
     # check if the move is forward
     if check_move_forward(origin_id, moved_by, player_1, target_id, player_2, origin_piece) == False:
@@ -385,13 +384,7 @@ def handle_aftergame(data):
         del track_captured_pieces[room]
     while room in rooms_in_use:
         rooms_in_use.remove(room)
-    
-    
-
-
-    
-
-   
+     
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))

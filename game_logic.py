@@ -127,7 +127,7 @@ def manage_turns(room, moved_by, origin_id, data):
 def detect_winner():
     """Figure out who the winner is depending on the captures, if all pieces are captured which are 12 
     We have a winner"""
-    #TODO: there are some stuff do be done yet not complete yet
+
     room= session.get("room")
     if len(track_captured_pieces[room]["player_1"]) == 12:
         return "player_1"
@@ -190,26 +190,18 @@ def force_capture(room, player_1, player_2, moved_by):
             # check if there is a piece that needs to be captured return true
             # in order to capture the destination must be empty the middle piece must be "♟" and the color must be different
             if originplus14_piece=="" and originplus7_piece== "♟" and color != originplus7_color:
-                print("492")
-                print("+14=", originplus14_piece, "+7=", originplus7_piece, "+7color=", originplus7_color)
                 return True
                 
             
             if originplus18_piece=="" and originplus9_piece== "♟" and color != originplus9_color:
-                print("497")
-                print("+18=", originplus18_piece, "+9=", originplus9_piece, "+9color=", originplus9_color)
                 return True
         
         if moved_by==player_2 and piece=="♟" and color=="green":
 
             if originminus14_piece=="" and originminus7_piece== "♟" and color != originminus7_color:
-                print("503")
-                print("-14=", originminus14_piece, "-7=", originminus7_piece, "-7color=", originminus7_color)
                 return True
             
             if originminus18_piece=="" and originminus9_piece== "♟" and color != originminus9_color:
-                print("509")
-                print("-18=", originminus18_piece, "-9=", originminus9_piece, "-9color=", originminus9_color)
                 return True
         
         # for kings
